@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoML OS | The Autonomous Intelligence Layer</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-rgb: 99, 102, 241;
+            --secondary: #a855f7;
+            --secondary-rgb: 168, 85, 247;
+            --accent: #06b6d4;
+            --accent-rgb: 6, 182, 212;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark-950: #030712;
+            --dark-900: #0f172a;
+            --dark-800: #1e293b;
+            --dark-700: #334155;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --font-main: 'Plus Jakarta Sans', sans-serif;
+            --font-display: 'Syne', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --nav-height: 90px;
+            --glow-primary: 0 0 25px rgba(var(--primary-rgb), 0.4);
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--dark-950);
+            color: #f8fafc;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            cursor: none; /* Custom cursor used */
+        }
+
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: var(--dark-950); }
+        ::-webkit-scrollbar-thumb { 
+            background: linear-gradient(var(--primary), var(--secondary)); 
+            border-radius: 5px; 
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(2deg); }
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+        @keyframes drift {
+            from { background-position: 0 0; }
+            to { background-position: 100% 100%; }
+        }
+
+        .system-layers {
+            position: fixed;
+            inset: 0;
+            z-index: -10;
+            pointer-events: none;
+        }
+
+        .mesh-gradient {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(at 0% 0%, rgba(var(--primary-rgb), 0.15) 0, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(var(--secondary-rgb), 0.12) 0, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(var(--accent-rgb), 0.1) 0, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(var(--success), 0.08) 0, transparent 50%);
+            opacity: 0.6;
+        }
+
+        .noise-layer {
+            position: absolute;
+            inset: 0;
+            opacity: 0.03;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+
+        .custom-cursor {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            mix-blend-mode: difference;
+            transition: transform 0.1s ease;
+        }
+
+        .custom-cursor-follower {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            border: 2px solid rgba(var(--primary-rgb), 0.5);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9998;
+            transition: transform 0.15s ease, width 0.3s, height 0.3s;
+        }
+
+        .navbar {
+            height: var(--nav-height);
+            background: rgba(3, 7, 18, 0.4);
+            backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid var(--glass-border);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .navbar.scrolled {
+            height: 70px;
+            background: rgba(3, 7, 18, 0.95);
+            box-shadow: 0 10px 40px -10px rgba(0,0,0,0.6);
+        }
+
+        .nav-link {
+            font-weight: 600;
+            color: #94a3b8 !important;
+            padding: 0.5rem 1.2rem !important;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link:hover { color: white !important; }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 50%;
+            width: 0; height: 2px;
+            background: var(--primary);
+            transition: all 0.3s;
+            transform: translateX(-50%);
+        }
+        .nav-link:hover::after { width: 80%; }
+
+        .glass-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 20px;
+            border-radius: 100px;
+            background: rgba(var(--primary-rgb), 0.08) !important; /* Forces dark transparency */
+            border: 1px solid rgba(var(--primary-rgb), 0.3);
+            backdrop-filter: blur(12px);
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 2.5rem;
+            position: relative;
+            z-index: 10;
+        }
+
+        .glass-pill i { font-size: 1.1rem; }
+
+        .hero {
+            padding: 240px 0 120px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+        }
+
+        .hero-display {
+            font-family: var(--font-display);
+            font-size: clamp(3.5rem, 10vw, 7.5rem);
+            font-weight: 800;
+            line-height: 0.88;
+            letter-spacing: -0.06em;
+            margin-bottom: 2.5rem;
+            background: linear-gradient(180deg, #fff 0%, #64748b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-display span { display: block; }
+
+        .text-gradient-os {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 50%, var(--accent) 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient-flow 5s linear infinite;
+        }
+
+        @keyframes gradient-flow {
+            to { background-position: 200% center; }
+        }
+
+        .btn-premium {
+            padding: 20px 48px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: none;
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-primary-os {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 15px 40px -10px rgba(var(--primary-rgb), 0.5);
+        }
+
+        .btn-primary-os:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 25px 50px -10px rgba(var(--primary-rgb), 0.6);
+            color: white;
+        }
+
+        /* ========================================
+        BENTO GRID FRAMEWORK
+        ========================================
+        */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-auto-rows: minmax(240px, auto);
+            gap: 2rem;
+        }
+
+        .bento-card {
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.3));
+            border: 1px solid var(--glass-border);
+            border-radius: 32px;
+            padding: 3rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.6s cubic-bezier(0.2, 1, 0.3, 1);
+            backdrop-filter: blur(10px);
+        }
+
+        .bento-card:hover {
+            transform: translateY(-12px);
+            border-color: rgba(var(--primary-rgb), 0.5);
+            background: rgba(15, 23, 42, 0.8);
+            box-shadow: 0 40px 100px -20px rgba(0,0,0,0.7);
+        }
+
+        .bento-icon {
+            width: 70px; height: 70px;
+            background: rgba(var(--primary-rgb), 0.1);
+            border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2rem; color: var(--primary);
+            margin-bottom: 2rem;
+            border: 1px solid rgba(var(--primary-rgb), 0.2);
+        }
+
+        /* ========================================
+        SIMULATOR OS INTERFACE
+        ========================================
+        */
+        .os-window {
+            background: #000;
+            border: 1px solid var(--dark-700);
+            border-radius: 24px;
+            box-shadow: 0 80px 150px -30px rgba(0,0,0,0.9);
+            overflow: hidden;
+            height: 700px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .os-header {
+            background: #0f172a;
+            padding: 16px 28px;
+            border-bottom: 1px solid var(--dark-700);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .os-body {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 320px 1fr 300px;
+        }
+
+        .os-sidebar {
+            background: #020617;
+            border-right: 1px solid var(--dark-700);
+            padding: 25px;
+        }
+
+        .os-terminal {
+            background: #000;
+            padding: 30px;
+            font-family: var(--font-mono);
+            font-size: 14px;
+            color: #94a3b8;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .os-metrics {
+            background: #020617;
+            border-left: 1px solid var(--dark-700);
+            padding: 25px;
+        }
+
+        .log-line { margin-bottom: 8px; animation: slide-in 0.3s ease-out; }
+        @keyframes slide-in { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+
+        /* ========================================
+        GPU ESTIMATOR
+        ========================================
+        */
+        .calc-card {
+            background: rgba(var(--primary-rgb), 0.05);
+            border: 1px solid rgba(var(--primary-rgb), 0.2);
+            border-radius: 24px;
+            padding: 4rem;
+            text-align: center;
+        }
+
+        .form-range-custom::-webkit-slider-thumb {
+            background: var(--primary);
+            width: 24px; height: 24px;
+            cursor: pointer;
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        /* ========================================
+        COMPARISON MATRIX
+        ========================================
+        */
+        .matrix-table {
+            background: var(--dark-900);
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+        }
+        .matrix-table th { background: rgba(var(--primary-rgb), 0.1); padding: 2.5rem; text-align: center; }
+        .matrix-table td { padding: 2rem; border-bottom: 1px solid var(--glass-border); text-align: center; }
+
+        /* ========================================
+        MEGA FOOTER
+        ========================================
+        */
+        .mega-footer {
+            padding: 120px 0 60px;
+            border-top: 1px solid var(--glass-border);
+            background: #010409;
+        }
+
+        /* ========================================
+        MOBILE OVERRIDES
+        ========================================
+        */
+        @media (max-width: 992px) {
+            .bento-grid { grid-template-columns: 1fr; }
+            .os-body { grid-template-columns: 1fr; }
+            .os-sidebar, .os-metrics { display: none; }
+            .os-window { height: 500px; }
+            .hero-display { font-size: 3.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="custom-cursor" id="cursor"></div>
+    <div class="custom-cursor-follower" id="follower"></div>
+    <div class="system-layers">
+        <div class="mesh-gradient"></div>
+        <div class="noise-layer"></div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg fixed-top navbar-dark" id="navbar">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center gap-3" href="#">
+                <svg width="45" height="45" viewBox="0 0 100 100" fill="none">
+                    <rect width="100" height="100" rx="28" fill="url(#grad)"/>
+                    <path d="M30 50L45 65L70 35" stroke="white" stroke-width="8" stroke-linecap="round"/>
+                    <defs>
+                        <linearGradient id="grad" x1="0" y1="0" x2="100" y2="100">
+                            <stop stop-color="#6366f1"/>
+                            <stop offset="1" stop-color="#a855f7"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+                <span class="fs-3 fw-bold">AutoML<span class="text-primary">.</span>OS</span>
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+                <i class="bi bi-grid-3x3-gap-fill fs-1"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navContent">
+                <ul class="navbar-nav ms-auto gap-2 align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="#capabilities">Core</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#simulator">Simulator</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#zoo">Model Zoo</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#docs">SDK</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#pricing">Enterprise</a></li>
+                    <li class="nav-item ms-lg-3"><a class="btn btn-premium btn-primary-os btn-sm px-4" href="#">Launch Hub</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero overflow-hidden">
+        <div class="container position-relative">
+            <div class="row align-items-center">
+                <div class="col-lg-8" data-aos="fade-up" data-aos-duration="1200">
+                    <div class="glass-pill">
+                        <i class="bi bi-shield-check"></i>
+                        <span>v4.5 Enterprise Engine Active</span>
+                        <i class="bi bi-arrow-right"></i>
+                    </div>
+                    <h1 class="hero-display">
+                        AutoML<br>
+                        <span class="text-gradient-os">IntelliOS</span>
+                    </h1>
+                    <p class="lead text-secondary fs-4 mb-5 pe-lg-5" style="max-width: 800px;">
+                        The first production-grade machine learning operating system designed for extreme scale. Automate the entire lifecycle from neural discovery to edge orchestration.
+                    </p>
+                    <div class="d-flex flex-wrap gap-4">
+                        <button class="btn btn-premium btn-primary-os" id="heroStart">
+                            <i class="bi bi-rocket-takeoff"></i> Initializing System
+                        </button>
+                        <button class="btn btn-premium btn-outline-light">
+                            <i class="bi bi-file-earmark-medical"></i> Technical Whitepaper
+                        </button>
+                    </div>
+                </div>
+                <div class="col-lg-4 d-none d-lg-block">
+                    <div class="position-relative" style="animation: float 6s ease-in-out infinite;">
+                        <svg width="400" height="400" viewBox="0 0 200 200">
+                            <defs>
+                                <filter id="glow">
+                                    <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
+                                    <feMerge>
+                                        <feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/>
+                                    </feMerge>
+                                </filter>
+                            </defs>
+                            <circle cx="100" cy="100" r="80" stroke="url(#grad)" stroke-width="0.5" fill="none" opacity="0.4"/>
+                            <path d="M100 20 A80 80 0 0 1 180 100" stroke="var(--primary)" stroke-width="2" fill="none" filter="url(#glow)"/>
+                            <circle cx="100" cy="100" r="40" fill="rgba(var(--primary-rgb), 0.1)"/>
+                            <i class="bi bi-cpu position-absolute top-50 start-50 translate-middle display-1 text-primary"></i>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-4 border-y border-glass-border bg-dark-900">
+        <div class="container">
+            <div class="row align-items-center g-4 text-center">
+                <div class="col-6 col-lg-3">
+                    <div class="small text-muted mb-1 text-uppercase ls-1 fw-bold">Live Traffic</div>
+                    <div class="fs-3 fw-bold text-success" id="stat-traffic">14.8 GB/s</div>
+                </div>
+                <div class="col-6 col-lg-3 border-start-lg border-glass-border">
+                    <div class="small text-muted mb-1 text-uppercase ls-1 fw-bold">Global Nodes</div>
+                    <div class="fs-3 fw-bold text-primary" id="stat-nodes">182 Nodes</div>
+                </div>
+                <div class="col-6 col-lg-3 border-start-lg border-glass-border">
+                    <div class="small text-muted mb-1 text-uppercase ls-1 fw-bold">Models Trained</div>
+                    <div class="fs-3 fw-bold text-accent" id="stat-models">452k</div>
+                </div>
+                <div class="col-6 col-lg-3 border-start-lg border-glass-border">
+                    <div class="small text-muted mb-1 text-uppercase ls-1 fw-bold">Avg Precision</div>
+                    <div class="fs-3 fw-bold text-warning" id="stat-acc">99.2%</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="capabilities" class="py-5">
+        <div class="container py-5">
+            <div class="text-center mb-5" data-aos="fade-up">
+                <h2 class="display-4 fw-bold" style="font-family: var(--font-display);">Modular Core <span class="text-gradient-os">Architecture</span></h2>
+                <p class="text-secondary fs-5">Zero-latency neural operations at any scale.</p>
+            </div>
+
+            <div class="bento-grid">
+                <div class="bento-card" style="grid-column: span 8; grid-row: span 2;" data-aos="fade-up">
+                    <div class="row align-items-center h-100">
+                        <div class="col-md-6">
+                            <div class="bento-icon"><i class="bi bi-diagram-3"></i></div>
+                            <h3>Neural Architecture Search</h3>
+                            <p class="text-secondary">Our proprietary NAS engine explores trillions of network permutations per second to find the mathematically optimal structure for your target hardware.</p>
+                            <div class="mt-4 d-grid gap-2">
+                                <div class="p-3 bg-black rounded-3 border border-glass-border d-flex justify-content-between">
+                                    <span class="small text-muted">NAS Optimization Level</span>
+                                    <span class="text-success fw-bold">Ultra-Max</span>
+                                </div>
+                                <div class="p-3 bg-black rounded-3 border border-glass-border d-flex justify-content-between">
+                                    <span class="small text-muted">Hardware Kernel</span>
+                                    <span class="text-primary fw-bold">CUDA 12.4 Optimized</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <canvas id="nasPerformance" height="300"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bento-card" style="grid-column: span 4;" data-aos="fade-up" data-aos-delay="100">
+                    <div class="bento-icon"><i class="bi bi-shield-lock"></i></div>
+                    <h4>Private-First Compute</h4>
+                    <p class="small text-secondary">On-premise deployment with zero-knowledge data processing and SOC2 compliance.</p>
+                </div>
+
+                <div class="bento-card" style="grid-column: span 4;" data-aos="fade-up" data-aos-delay="200">
+                    <div class="bento-icon"><i class="bi bi-lightning-charge"></i></div>
+                    <h4>Sub-ms Inference</h4>
+                    <p class="small text-secondary">Quantized INT8 model execution for high-frequency edge IoT workloads.</p>
+                </div>
+
+                <div class="bento-card" style="grid-column: span 6; grid-row: span 1;" data-aos="fade-up">
+                    <div class="d-flex align-items-center gap-4">
+                        <div class="feature-icon-box m-0" style="flex-shrink: 0; width:60px; height:60px;">
+                            <i class="bi bi-magic text-accent"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-1">Deep Feature Synthesis</h5>
+                            <p class="small text-secondary m-0">Automatically discover hidden signals in multi-relational data clusters.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bento-card" style="grid-column: span 6;" data-aos="fade-up" data-aos-delay="100">
+                    <div class="d-flex align-items-center gap-4">
+                        <div class="feature-icon-box m-0" style="flex-shrink: 0; width:60px; height:60px;">
+                            <i class="bi bi-eye text-warning"></i>
+                        </div>
+                        <div>
+                            <h5 class="fw-bold mb-1">Explainable AI (XAI)</h5>
+                            <p class="small text-secondary m-0">Built-in SHAP and LIME artifacts for regulatory compliance audits.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="simulator" class="py-5 bg-black">
+        <div class="container py-5">
+            <div class="row mb-5 text-center" data-aos="fade-up">
+                <div class="col-12">
+                    <h2 class="display-4 fw-bold" style="font-family: var(--font-display);">Cloud <span class="text-gradient-os">Training Terminal</span></h2>
+                    <p class="text-secondary">Control the autonomous lifecycle with our CLI-integrated dashboard.</p>
+                </div>
+            </div>
+
+            <div class="row" data-aos="zoom-in" data-aos-duration="1000">
+                <div class="col-12">
+                    <div class="os-window">
+                        <div class="os-header">
+                            <div class="d-flex gap-2">
+                                <div class="t-dot bg-danger"></div>
+                                <div class="t-dot bg-warning"></div>
+                                <div class="t-dot bg-success"></div>
+                            </div>
+                            <div class="small font-mono text-muted">automl_os --v4.5 --cluster-east-1</div>
+                            <div class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25" id="simStatus">SYSTEM READY</div>
+                        </div>
+                        <div class="os-body">
+                            <div class="os-sidebar">
+                                <h6 class="text-uppercase small ls-2 fw-bold text-primary mb-4">Pipeline Params</h6>
+                                <div class="mb-4">
+                                    <label class="small text-muted mb-2">Model Strategy</label>
+                                    <select class="form-select bg-dark border-glass-border text-white small" id="simStrategy">
+                                        <option value="max_acc">Max Accuracy</option>
+                                        <option value="min_lat">Minimum Latency</option>
+                                        <option value="balanced">Balanced (Hybrid)</option>
+                                    </select>
+                                </div>
+                                <div class="mb-4">
+                                    <label class="small text-muted mb-2">Target Epochs</label>
+                                    <input type="number" class="form-control bg-dark border-glass-border text-white small" value="100" id="simEpochs">
+                                </div>
+                                <button class="btn btn-primary-os w-100 py-3 mt-3 fw-bold" id="simAction">
+                                    <i class="bi bi-play-fill me-1"></i> RUN SEQUENCE
+                                </button>
+                                <button class="btn btn-outline-danger w-100 py-2 mt-2 fw-bold small" id="simAbort" disabled>ABORT</button>
+                            </div>
+                            <div class="os-terminal" id="terminalOutput">
+                                <div class="log-line text-muted"># Initialize AutoML.OS Engine...</div>
+                                <div class="log-line text-muted"># Waiting for input sequence...</div>
+                                <div class="cursor-custom mt-2" style="width:10px; height:20px; background:var(--primary); animation: blink 1s infinite;"></div>
+                            </div>
+                            <div class="os-metrics">
+                                <h6 class="text-uppercase small ls-2 fw-bold text-accent mb-4">Model Analytics</h6>
+                                <div class="mb-4 text-center">
+                                    <div class="display-5 fw-bold text-white" id="liveAcc">0.00%</div>
+                                    <div class="small text-muted">Current Precision</div>
+                                </div>
+                                <div class="progress bg-dark mb-4" style="height: 6px; border-radius: 10px;">
+                                    <div class="progress-bar bg-accent progress-bar-striped progress-bar-animated" id="simProgress" style="width: 0%"></div>
+                                </div>
+                                <canvas id="liveLossChart" height="150"></canvas>
+                                <div class="mt-4 pt-4 border-top border-glass-border">
+                                    <div class="d-flex justify-content-between small mb-2">
+                                        <span class="text-muted">GPU Load</span>
+                                        <span class="text-warning fw-bold" id="gpuLoad">0%</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between small">
+                                        <span class="text-muted">VRAM Usage</span>
+                                        <span class="text-accent fw-bold" id="vramUsage">0/80GB</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="zoo" class="py-5">
+        <div class="container py-5">
+            <div class="row align-items-end mb-5">
+                <div class="col-lg-6" data-aos="fade-right">
+                    <h2 class="display-5 fw-bold" style="font-family: var(--font-display);">Model <span class="text-gradient-os">Zoo v2.0</span></h2>
+                    <p class="text-secondary fs-5">Access 500+ pre-trained state-of-the-art architectures.</p>
+                </div>
+                <div class="col-lg-6" data-aos="fade-left">
+                    <div class="input-group">
+                        <span class="input-group-text bg-dark border-glass-border border-end-0"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control bg-dark border-glass-border text-white p-3 border-start-0" placeholder="Search architecture (e.g. ResNet, ViT, LLM)..." id="modelSearch">
+                        <button class="btn btn-primary-os px-4">Search Hub</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4" id="modelGrid">
+                </div>
+            
+            <div class="text-center mt-5">
+                <button class="btn btn-outline-ai px-5 py-3">View Global Registry</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="docs" class="py-5 bg-dark-900 border-y border-glass-border">
+        <div class="container py-5">
+            <div class="row g-5">
+                <div class="col-lg-4" data-aos="fade-right">
+                    <h2 class="display-5 fw-bold mb-4" style="font-family: var(--font-display);">Developer <span class="text-gradient-os">SDK</span></h2>
+                    <p class="text-secondary mb-5">Integrate autonomous intelligence into your production stack with five lines of code.</p>
+                    
+                    <div class="d-grid gap-3">
+                        <div class="nav flex-column nav-pills" id="sdk-tabs">
+                            <button class="nav-link text-start active" data-bs-toggle="pill" data-bs-target="#py-sdk">
+                                <i class="bi bi-filetype-py me-2"></i> Python SDK (v4.5)
+                            </button>
+                            <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#js-sdk">
+                                <i class="bi bi-filetype-js me-2"></i> Node.js Runtime
+                            </button>
+                            <button class="nav-link text-start" data-bs-toggle="pill" data-bs-target="#go-sdk">
+                                <i class="bi bi-code-square me-2"></i> Go Integration
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-8" data-aos="fade-left">
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="py-sdk">
+                            <div class="p-5 bg-black rounded-4 border border-glass-border position-relative">
+                                <div class="copy-badge position-absolute top-0 end-0 m-4 btn btn-sm btn-dark border-glass-border" onclick="copyCode(this)">COPY</div>
+                                <pre class="m-0 font-mono small line-height-2" style="color:#d1d5db;">
+<code><span style="color:#94a3b8;"># Install: pip install automl-os</span>
+<span style="color:#f472b6;">import</span> <span style="color:#fbbf24;">automl_os</span> <span style="color:#f472b6;">as</span> <span style="color:#fbbf24;">os_ai</span>
+
+<span style="color:#94a3b8;"># Initialize client with Enterprise context</span>
+<span style="color:#fbbf24;">client</span> = <span style="color:#fbbf24;">os_ai</span>.<span style="color:#fbbf24;">Client</span>(api_key=<span style="color:#34d399;">"AM_OS_X772"</span>, cluster=<span style="color:#34d399;">"us-east-1"</span>)
+
+<span style="color:#94a3b8;"># Start autonomous search & training</span>
+<span style="color:#fbbf24;">model</span> = <span style="color:#fbbf24;">client</span>.pipelines.create(
+    name=<span style="color:#34d399;">"UserChurn_v4"</span>,
+    strategy=<span style="color:#34d399;">"max_accuracy"</span>,
+    compute=os_ai.Compute.<span style="color:#fbbf24;">GPU_H100_XL</span>
+)
+
+<span style="color:#94a3b8;"># Automatic deployment to Global Edge</span>
+<span style="color:#fbbf24;">endpoint</span> = <span style="color:#fbbf24;">model</span>.deploy(target=<span style="color:#34d399;">"global_edge_cdn"</span>)
+<span style="color:#fbbf24;">print</span>(f<span style="color:#34d399;">"Endpoint Live: {endpoint.url}"</span>)</code></pre>
+                            </div>
+                        </div>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5">
+        <div class="container py-5">
+            <div class="row align-items-center">
+                <div class="col-lg-6" data-aos="fade-right">
+                    <h3 class="fw-bold mb-4" style="font-family: var(--font-display);">Compute <span class="text-gradient-os">Cost Estimator</span></h3>
+                    <p class="text-secondary mb-5">Predict your infrastructure savings with AutoML OS automated resource pruning.</p>
+                    
+                    <div class="mb-5">
+                        <label class="small text-muted mb-3 text-uppercase ls-2">Monthly Training Hours</label>
+                        <input type="range" class="form-range form-range-custom" id="hourRange" min="10" max="10000" step="10" value="1000">
+                        <div class="d-flex justify-content-between mt-2">
+                            <span class="text-primary fw-bold">10 hrs</span>
+                            <span id="hourDisplay" class="fs-4 fw-bold text-white">1000 Hours</span>
+                            <span class="text-primary fw-bold">10k hrs</span>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="small text-muted mb-2 text-uppercase ls-2">GPU Configuration</label>
+                        <select class="form-select bg-dark border-glass-border text-white p-3" id="gpuSelect">
+                            <option value="2.5">NVIDIA A100 (80GB VRAM) - $2.50/hr</option>
+                            <option value="4.8">NVIDIA H100 (80GB VRAM) - $4.80/hr</option>
+                            <option value="1.2">NVIDIA L4 (24GB VRAM) - $1.20/hr</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-lg-5 offset-lg-1" data-aos="fade-left">
+                    <div class="calc-card">
+                        <h6 class="text-muted text-uppercase ls-2 mb-2">Estimated Monthly Savings</h6>
+                        <div class="display-3 fw-bold text-white mb-4" id="savingsValue">$8,450.00</div>
+                        <div class="d-flex justify-content-center gap-3 mb-4">
+                            <div class="badge bg-success bg-opacity-10 text-success p-2">Auto-Pruning Active</div>
+                            <div class="badge bg-primary bg-opacity-10 text-primary p-2">Pre-emptible Nodes</div>
+                        </div>
+                        <button class="btn btn-premium btn-primary-os w-100">Unlock Enterprise Rates</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5 overflow-hidden">
+        <div class="container py-5 text-center">
+            <h2 class="display-5 fw-bold mb-5" data-aos="fade-up">Globally Distributed <span class="text-gradient-os">Fabric</span></h2>
+            <div class="map-wrapper position-relative" data-aos="zoom-in" data-aos-duration="1500">
+                <svg viewBox="0 0 1000 500" class="img-fluid opacity-40">
+                    <path d="M150 200 Q 300 150 500 250 T 850 200" fill="none" stroke="var(--primary)" stroke-width="0.5" stroke-dasharray="4 4" />
+                    <path d="M150 200 Q 400 350 850 200" fill="none" stroke="var(--secondary)" stroke-width="0.5" stroke-dasharray="4 4" />
+                    </svg>
+                <div class="node position-absolute" style="top:30%; left:20%;"><div class="live-indicator"></div></div>
+                <div class="node position-absolute" style="top:45%; left:50%;"><div class="live-indicator"></div></div>
+                <div class="node position-absolute" style="top:25%; left:85%;"><div class="live-indicator"></div></div>
+                <div class="node position-absolute" style="top:70%; left:15%;"><div class="live-indicator"></div></div>
+                <div class="node position-absolute" style="top:65%; left:75%;"><div class="live-indicator"></div></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="pricing" class="py-5">
+        <div class="container py-5">
+            <div class="text-center mb-5" data-aos="fade-up">
+                <h2 class="display-4 fw-bold" style="font-family: var(--font-display);">Scale Your <span class="text-gradient-os">Intelligence</span></h2>
+                <p class="text-secondary fs-5">From single developers to global compute clusters.</p>
+            </div>
+
+            <div class="row g-4 align-items-center">
+                <div class="col-lg-4" data-aos="fade-up">
+                    <div class="bento-card text-center">
+                        <h5 class="text-uppercase ls-2 mb-4">Developer</h5>
+                        <div class="display-4 fw-bold mb-4">$0</div>
+                        <ul class="list-unstyled text-start small d-grid gap-3 mb-5">
+                            <li><i class="bi bi-check2 text-success me-2"></i> 2 Concurrent Pipelines</li>
+                            <li><i class="bi bi-check2 text-success me-2"></i> Community Model Hub</li>
+                            <li><i class="bi bi-check2 text-success me-2"></i> Basic Feature Eng.</li>
+                            <li class="text-muted"><i class="bi bi-x text-danger me-2"></i> Custom NAS Clusters</li>
+                        </ul>
+                        <button class="btn btn-outline-light w-100 py-3">Start Building</button>
+                    </div>
+                </div>
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                    <div class="bento-card text-center" style="border: 2px solid var(--primary); transform: scale(1.05); z-index: 2;">
+                        <div class="badge bg-primary position-absolute top-0 end-0 m-4">POPULAR</div>
+                        <h5 class="text-uppercase ls-2 mb-4">Pro Ops</h5>
+                        <div class="display-4 fw-bold mb-4">$199<small class="fs-6 text-muted">/mo</small></div>
+                        <ul class="list-unstyled text-start small d-grid gap-3 mb-5">
+                            <li><i class="bi bi-check2 text-success me-2"></i> 25 Concurrent Pipelines</li>
+                            <li><i class="bi bi-check2 text-success me-2"></i> Private Model Hub</li>
+                            <li><i class="bi bi-check2 text-success me-2"></i> Full Depth NAS Search</li>
+                            <li><i class="bi bi-check2 text-success me-2"></i> 24/7 Priority Support</li>
+                            <li><i class="bi bi-check2 text-success me-2"></i> Edge Deployment SDK</li>
+                        </ul>
+                        <button class="btn btn-premium btn-primary-os w-100">Scale Now</button>
+                    </div>
+                </div>
+                <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                    <div class="bento-card text-center">
+                        <h5 class="text-uppercase ls-2 mb-4">Enterprise</h5>
+                        <div class="display-4 fw-bold mb-4">Custom</div>
+                        <ul class="list-unstyled text-start small d-grid gap-3 mb-5">
+                            <li><i class="bi bi-check2 text-success me-2"></i> Unlimited Pipelines</li>
+                            <li><i class="bi bi-check2 text-success me-2"></i> On-Prem Deployment</li>
+                            <li><i class="bi bi-check2 text-success me-2"></i> Custom SLA Guarantees</li>
+                            <li><i class="bi bi-check2 text-success me-2"></i> Dedicated Solution Arch.</li>
+                        </ul>
+                        <button class="btn btn-outline-light w-100 py-3">Contact Sales</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="mega-footer">
+        <div class="container">
+            <div class="row g-5">
+                <div class="col-lg-4">
+                    <a class="navbar-brand d-flex align-items-center gap-3 mb-4" href="#">
+                        <svg width="40" height="40" viewBox="0 0 100 100">
+                            <rect width="100" height="100" rx="24" fill="var(--primary)"/>
+                            <path d="M30 50L45 65L70 35" stroke="white" stroke-width="8" stroke-linecap="round"/>
+                        </svg>
+                        <span class="fs-3 fw-bold">AutoML.OS</span>
+                    </a>
+                    <p class="text-secondary small mb-5">Architecting the autonomous future. Built for developers who demand extreme scale and zero-compromise precision.</p>
+                    <div class="d-flex gap-4 fs-4 text-muted">
+                        <i class="bi bi-github"></i>
+                        <i class="bi bi-twitter-x"></i>
+                        <i class="bi bi-linkedin"></i>
+                        <i class="bi bi-discord"></i>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-2">
+                    <h6 class="fw-bold mb-4">Platform</h6>
+                    <ul class="list-unstyled d-grid gap-2 small">
+                        <li><a href="#" class="text-secondary text-decoration-none hover-primary">Model Hub</a></li>
+                        <li><a href="#" class="text-secondary text-decoration-none hover-primary">NAS Engine</a></li>
+                        <li><a href="#" class="text-secondary text-decoration-none hover-primary">Edge Runtime</a></li>
+                        <li><a href="#" class="text-secondary text-decoration-none hover-primary">Private Cloud</a></li>
+                    </ul>
+                </div>
+                <div class="col-6 col-lg-2">
+                    <h6 class="fw-bold mb-4">Company</h6>
+                    <ul class="list-unstyled d-grid gap-2 small">
+                        <li><a href="#" class="text-secondary text-decoration-none hover-primary">About Research</a></li>
+                        <li><a href="#" class="text-secondary text-decoration-none hover-primary">Careers</a></li>
+                        <li><a href="#" class="text-secondary text-decoration-none hover-primary">Press Room</a></li>
+                        <li><a href="#" class="text-secondary text-decoration-none hover-primary">Trust Center</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4">
+                    <h6 class="fw-bold mb-4">Subscribe to AI Evolution</h6>
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control bg-dark border-glass-border text-white p-3" placeholder="email@company.com">
+                        <button class="btn btn-primary-os px-4">Join</button>
+                    </div>
+                    <p class="small text-muted">Get monthly insights into NAS research and edge model optimization.</p>
+                </div>
+            </div>
+            <div class="mt-5 pt-5 border-top border-glass-border d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <p class="small text-muted m-0">&copy; 2026 AutoML OS Inc. Globally Distributed Intelligence.</p>
+                <div class="d-flex gap-4 small text-muted">
+                    <a href="#" class="text-decoration-none text-muted">Privacy</a>
+                    <a href="#" class="text-decoration-none text-muted">Terms</a>
+                    <a href="#" class="text-decoration-none text-muted">SLA</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    <script>
+        /**
+         * ========================================
+         * CORE STATE MACHINE: AutoMLSimulator
+         * ========================================
+         */
+        class AutoMLSimulator {
+            constructor() {
+                this.terminal = document.getElementById('terminalOutput');
+                this.startBtn = document.getElementById('simAction');
+                this.abortBtn = document.getElementById('simAbort');
+                this.progressBar = document.getElementById('simProgress');
+                this.statusLabel = document.getElementById('simStatus');
+                this.accLabel = document.getElementById('liveAcc');
+                this.lossChart = null;
+                this.isRunning = false;
+                this.currentEpoch = 0;
+                this.accuracyData = [];
+                this.initCharts();
+            }
+
+            initCharts() {
+                const ctx = document.getElementById('liveLossChart').getContext('2d');
+                this.lossChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Validation Loss',
+                            data: [],
+                            borderColor: '#a855f7',
+                            backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { display: false } },
+                        scales: { x: { display: false }, y: { display: false } }
+                    }
+                });
+            }
+
+            async log(message, type = 'info') {
+                const colors = {
+                    info: 'text-muted',
+                    success: 'text-success',
+                    warning: 'text-warning',
+                    error: 'text-danger',
+                    cmd: 'text-primary'
+                };
+                const line = document.createElement('div');
+                line.className = `log-line ${colors[type]}`;
+                line.innerHTML = `<span class="text-primary">></span> ${message}`;
+                this.terminal.appendChild(line);
+                this.terminal.scrollTop = this.terminal.scrollHeight;
+                await new Promise(r => setTimeout(r, Math.random() * 500 + 200));
+            }
+
+            async run() {
+                if (this.isRunning) return;
+                this.isRunning = true;
+                this.startBtn.disabled = true;
+                this.abortBtn.disabled = false;
+                this.terminal.innerHTML = "";
+                this.accuracyData = [];
+                this.lossChart.data.labels = [];
+                this.lossChart.data.datasets[0].data = [];
+                
+                this.statusLabel.innerText = "INITIALIZING CLUSTER";
+                this.statusLabel.className = "badge bg-warning text-dark";
+
+                await this.log("Connecting to NVIDIA H100 Cluster [Region: US-EAST-1]...", "cmd");
+                await this.log("Authenticating SDK Key: AM_OS_X772... SUCCESS", "success");
+                await this.log("Scanning dataset: RELATIONAL_CUSTOMERS_V2.parquet", "info");
+                await this.log("Dataset Check: 1.4B records detected. Partitioning...", "info");
+                
+                this.statusLabel.innerText = "DEEP FEATURE SYNTHESIS";
+                await this.log("Executing Auto-Feature Discovery (Depth: 3)", "cmd");
+                for(let i=0; i<5; i++) {
+                    await this.log(`Synthesizing feature cluster #${i+1}... Found high-signal correlation.`, "success");
+                }
+
+                this.statusLabel.innerText = "NEURAL ARCH SEARCH";
+                await this.log("Starting NAS Evolutionary Phase...", "warning");
+                
+                for(let epoch = 1; epoch <= 100; epoch += 5) {
+                    if(!this.isRunning) break;
+                    
+                    this.currentEpoch = epoch;
+                    const acc = (Math.log10(epoch) * 45 + Math.random() * 2).toFixed(2);
+                    const loss = (1 / Math.log(epoch + 1)).toFixed(4);
+                    
+                    this.progressBar.style.width = `${epoch}%`;
+                    this.accLabel.innerText = `${acc}%`;
+                    document.getElementById('gpuLoad').innerText = `${Math.floor(Math.random()*20 + 75)}%`;
+                    document.getElementById('vramUsage').innerText = `${Math.floor(Math.random()*10 + 60)}/80GB`;
+
+                    this.lossChart.data.labels.push(epoch);
+                    this.lossChart.data.datasets[0].data.push(loss);
+                    this.lossChart.update();
+
+                    await this.log(`NAS Iteration ${epoch}: Acc=${acc}%, Loss=${loss}`, "info");
+                }
+
+                if(this.isRunning) {
+                    this.statusLabel.innerText = "DEPLOYING TO EDGE";
+                    await this.log("NAS Phase complete. Model Optimized.", "success");
+                    await this.log("Quantizing Model Weights (FP16 -> INT8)...", "cmd");
+                    await this.log("Compiling TensorRT Engine for ARM64...", "info");
+                    await this.log("Pushing artifacts to Global CDN...", "info");
+                    await this.log("✨ SUCCESS: Model Endpoint Live at: https://api.automlos.ai/v1/prod/churn-v4", "success");
+                    this.statusLabel.innerText = "SYSTEM LIVE";
+                    this.statusLabel.className = "badge bg-success";
+                }
+                
+                this.stop();
+            }
+
+            stop() {
+                this.isRunning = false;
+                this.startBtn.disabled = false;
+                this.abortBtn.disabled = true;
+            }
+        }
+
+        // Initialize Simulator
+        const sim = new AutoMLSimulator();
+        document.getElementById('simAction').addEventListener('click', () => sim.run());
+        document.getElementById('simAbort').addEventListener('click', () => {
+            sim.log("ABORT COMMAND RECEIVED. SHUTTING DOWN NODES...", "error");
+            sim.stop();
+            document.getElementById('simStatus').innerText = "ABORTED";
+            document.getElementById('simStatus').className = "badge bg-danger";
+        });
+
+        /**
+         * ========================================
+         * DYNAMIC UI LOGIC
+         * ========================================
+         */
+        
+        // Custom Cursor Logic
+        const cursor = document.getElementById('cursor');
+        const follower = document.getElementById('follower');
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            follower.style.left = e.clientX - 15 + 'px';
+            follower.style.top = e.clientY - 15 + 'px';
+        });
+
+        // Model Hub Generator
+        const models = [
+            { name: "ResNet-152 Turbo", tag: "Vision", acc: "98.2%", icon: "bi-image" },
+            { name: "Transformer-XL Pro", tag: "NLP", acc: "99.1%", icon: "bi-translate" },
+            { name: "Prophet v2 OS", tag: "Forecasting", acc: "94.5%", icon: "bi-graph-up-arrow" },
+            { name: "DeepTabular 7B", tag: "Structured", acc: "96.8%", icon: "bi-table" },
+            { name: "YOLO-NAS Ultra", tag: "Real-time", acc: "97.4%", icon: "bi-camera-video" },
+            { name: "WaveNet-Distributed", tag: "Audio", acc: "95.2%", icon: "bi-mic" }
+        ];
+
+        const modelGrid = document.getElementById('modelGrid');
+        models.forEach((m, i) => {
+            const card = `
+                <div class="col-md-4" data-aos="fade-up" data-aos-delay="${i * 100}">
+                    <div class="bento-card">
+                        <div class="d-flex justify-content-between align-items-start mb-4">
+                            <div class="p-3 bg-dark rounded-3 border border-glass-border">
+                                <i class="bi ${m.icon} text-primary fs-4"></i>
+                            </div>
+                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25">${m.tag}</span>
+                        </div>
+                        <h5 class="fw-bold">${m.name}</h5>
+                        <div class="d-flex justify-content-between mt-4 align-items-center">
+                            <span class="small text-muted">Avg Precision</span>
+                            <span class="fw-bold text-success">${m.acc}</span>
+                        </div>
+                        <button class="btn btn-premium btn-primary-os w-100 mt-4 py-2 small" onclick="this.innerText='Deploying...'">LOAD MODEL</button>
+                    </div>
+                </div>
+            `;
+            modelGrid.innerHTML += card;
+        });
+
+        // Cost Estimator Logic
+        const hourRange = document.getElementById('hourRange');
+        const hourDisplay = document.getElementById('hourDisplay');
+        const gpuSelect = document.getElementById('gpuSelect');
+        const savingsValue = document.getElementById('savingsValue');
+
+        const updateSavings = () => {
+            const hours = hourRange.value;
+            const rate = gpuSelect.value;
+            hourDisplay.innerText = `${parseInt(hours).toLocaleString()} Hours`;
+            const cost = hours * rate;
+            const savings = cost * 0.42; // Simulated 42% savings claim
+            savingsValue.innerText = `$${savings.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        };
+
+        hourRange.addEventListener('input', updateSavings);
+        gpuSelect.addEventListener('change', updateSavings);
+
+        // Global Scroll Effects
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('navbar');
+            window.scrollY > 50 ? nav.classList.add('scrolled') : nav.classList.remove('scrolled');
+        });
+
+        // Initialize AOS
+        AOS.init({ once: true });
+
+        // Copy Helper
+        function copyCode(btn) {
+            btn.innerText = "COPIED!";
+            setTimeout(() => btn.innerText = "COPY", 2000);
+        }
+
+        // Performance Chart
+        const perfCtx = document.getElementById('nasPerformance').getContext('2d');
+        new Chart(perfCtx, {
+            type: 'radar',
+            data: {
+                labels: ['Latency', 'Accuracy', 'VRAM', 'Throughput', 'Explainability', 'Stability'],
+                datasets: [{
+                    label: 'Legacy Cloud AI',
+                    data: [60, 75, 80, 55, 40, 70],
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    borderColor: 'rgba(255, 255, 255, 0.4)',
+                    borderWidth: 2
+                }, {
+                    label: 'AutoML OS Pro',
+                    data: [95, 98, 92, 99, 85, 96],
+                    backgroundColor: 'rgba(99, 102, 241, 0.2)',
+                    borderColor: '#6366f1',
+                    borderWidth: 3
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: {
+                    r: {
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        angleLines: { color: 'rgba(255,255,255,0.1)' },
+                        pointLabels: { color: '#94a3b8' },
+                        ticks: { display: false }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
